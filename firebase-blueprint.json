@@ -1,0 +1,56 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Stores user progress and basic info",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "xp": { "type": "integer" },
+        "level": { "type": "integer" },
+        "rank": { "type": "string" },
+        "completedScenarios": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "PracticeSession": {
+      "title": "Practice Session",
+      "description": "Stores a single practice attempt with its evaluation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "scenarioId": { "type": "string" },
+        "type": { "type": "string", "enum": ["audio", "video"] },
+        "transcript": { "type": "string" },
+        "mediaUrl": { "type": "string" },
+        "evaluation": { "$ref": "Evaluation" },
+        "createdAt": { "type": "integer" }
+      },
+      "required": ["userId", "scenarioId", "type", "transcript", "evaluation", "createdAt"]
+    },
+    "Evaluation": {
+      "title": "AI Evaluation",
+      "description": "The result of the AI evaluation",
+      "type": "object",
+      "properties": {
+        "scores": { "type": "object" },
+        "feedback": { "type": "string" },
+        "improvedResponse": { "type": "string" },
+        "coachingTips": { "type": "array", "items": { "type": "string" } },
+        "improvementAreas": { "type": "array", "items": { "type": "string" } },
+        "totalScore": { "type": "integer" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/sessions/{sessionId}": {
+      "schema": "PracticeSession",
+      "description": "Practice sessions for all users"
+    }
+  }
+}

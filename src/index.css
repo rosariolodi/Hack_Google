@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-brand-green: #58CC02;
+  --color-brand-green-dark: #46A302;
+  --color-brand-blue: #1CB0F6;
+  --color-brand-blue-dark: #1899D6;
+  --color-brand-orange: #FF9600;
+  --color-brand-red: #FF4B4B;
+  --color-brand-purple: #CE82FF;
+}
+
+@layer base {
+  body {
+    @apply font-sans text-[#3C3C3C] antialiased bg-[#F0F4F8];
+  }
+}
+
+.chunky-card {
+  @apply bg-white rounded-[32px] border-b-8 border-slate-200;
+}
+
+.chunky-button-green {
+  @apply bg-brand-green text-white py-4 px-8 rounded-2xl font-black uppercase tracking-wider shadow-[0_6px_0_0_#46A302] active:shadow-none active:translate-y-1 transition-all;
+}
+
+.chunky-button-blue {
+  @apply bg-brand-blue text-white py-4 px-8 rounded-2xl font-black uppercase tracking-wider shadow-[0_6px_0_0_#1899D6] active:shadow-none active:translate-y-1 transition-all;
+}
+
+.mirror {
+  transform: scaleX(-1);
+}

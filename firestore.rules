@@ -1,0 +1,83 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Users ---
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUser(incoming());
+      allow update: if isOwner(userId) && isValidUserUpdate(incoming(), existing());
+
+      function isValidUser(data) {
+        return data.keys().hasAll(['uid', 'email', 'xp', 'level', 'rank', 'completedScenarios'])
+          && data.keys().size() == 6
+          && data.uid == request.auth.uid
+          && data.email is string
+          && data.xp is int
+          && data.level is int
+          && data.rank is string
+          && data.completedScenarios is list;
+      }
+
+      function isValidUserUpdate(incoming, existing) {
+        return incoming.uid == existing.uid
+          && incoming.email == existing.email
+          && incoming.xp >= 0
+          && incoming.level >= 1
+          && incoming.diff(existing).affectedKeys().hasOnly(['xp', 'level', 'rank', 'completedScenarios']);
+      }
+    }
+
+    // --- Sessions ---
+    match /sessions/{sessionId} {
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid && isValidSession(incoming());
+      
+      function isValidSession(data) {
+        return data.keys().hasAll(['userId', 'scenarioId', 'type', 'transcript', 'evaluation', 'createdAt'])
+          && data.userId == request.auth.uid
+          && data.scenarioId is string
+          && data.type in ['audio', 'video']
+          && data.transcript is string
+          && data.createdAt == request.time
+          && isValidEvaluation(data.evaluation);
+      }
+
+      function isValidEvaluation(eval) {
+        return eval.keys().hasAll(['scores', 'feedback', 'improvedResponse', 'coachingTips', 'improvementAreas', 'totalScore'])
+          && eval.scores.cadence is number
+          && eval.scores.language is number
+          && eval.scores.shockFactor is number
+          && eval.scores.efficiency is number
+          && eval.totalScore >= 0 && eval.totalScore <= 100;
+      }
+    }
+  }
+}

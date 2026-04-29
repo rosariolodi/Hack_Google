@@ -1,0 +1,6 @@
+{
+  "name": "Remix: CommMaster",
+  "description": "AI-powered communication coach for job interviews, elevator pitches, and concept explaining with gamified learning paths.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": []
+}
